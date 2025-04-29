@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useChatStore } from "../store/useChatStore.js";
 import SideBarSkeleton from "./skeliton/SideBarSkeliton";
 import { Users } from "lucide-react";
@@ -9,14 +9,15 @@ const SideBar = () => {
     useChatStore();
 
   const { onlineUsers } = useAuthStore();
-
-  // Simulated list of online users (replace with actual logic later)
-
-  console.log(users);
+  const [showOnlineUsersOnly, setShowOnlineUsersOnly] = useState(false);
 
   useEffect(() => {
     getUsers();
   }, [getUsers]);
+
+  const filteredOnlineUsers = showOnlineUsersOnly
+    ? users.filter((user) => onlineUsers.includes(user._id))
+    : users;
 
   const capitalizeFirstLetter = (name) => {
     if (!name) return "";

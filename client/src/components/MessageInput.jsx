@@ -45,6 +45,7 @@ const MessageInput = () => {
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
       }
+      setSendClicked(false);
     } catch (error) {
       console.log("Failed to send message: ", error);
     }
