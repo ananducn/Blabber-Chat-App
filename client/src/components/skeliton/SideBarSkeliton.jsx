@@ -1,11 +1,6 @@
 import React from "react";
-import { useChatStore } from "../../store/useChatStore";
 
 const SideBarSkeleton = () => {
-
-  const{getUsers} = useChatStore();
-
-
   return (
     <div className="w-64 bg-base-300 p-4 border-r border-base-200">
       <div className="mb-4 h-6 w-32 bg-base-100 rounded animate-pulse"></div>

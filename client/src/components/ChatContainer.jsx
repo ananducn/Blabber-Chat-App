@@ -1,52 +1,122 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { useChatStore } from "../store/useChatStore";
+import ChatHeader from "./ChatHeader.jsx";
+import MessageInput from "./MessageInput.jsx";
+import LoadingSpinner from "./loadingSpinner/LoadingSpinner.jsx";
+import { useAuthStore } from "../store/useAuthStore";
+import { format } from "date-fns"; // Import date-fns for formatting timestamps
 
 const ChatContainer = () => {
-  const { selectedUser, message, getMessages } = useChatStore();
+  const {
+    selectedUser,
+    message,
+    getMessages,
+    isMessageLoading,
+    subscribeToNewMessages,
+    unSubscribeToNewMessages,
+  } = useChatStore();
+  const { authUser } = useAuthStore();
+
+  const messagesEndRef = useRef(null); // Ref to scroll to the bottom
 
   useEffect(() => {
-    getMessages(selectedUser._id);
-  }, [selectedUser, getMessages]);
+    if (selectedUser?._id) {
+      getMessages(selectedUser._id);
+      subscribeToNewMessages();
 
-  const capitalizeFirstLetter = (name) => {
-    if (!name) return "";
-    return name.charAt(0).toUpperCase() + name.slice(1);
-  };
+      return () => {
+        unSubscribeToNewMessages();
+      };
+    }
+  }, [
+    selectedUser?._id,
+    getMessages,
+    subscribeToNewMessages,
+    unSubscribeToNewMessages,
+  ]);
+
+  useEffect(() => {
+    // Scroll to the bottom when new messages are loaded or added
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [message]); // Re-run when the messages change
+
+  if (!selectedUser) {
+    return (
+      <div className="flex items-center justify-center w-full h-full text-center text-lg opacity-50">
+        Select a user to start chatting
+      </div>
+    );
+  }
+
+  if (isMessageLoading) {
+    return <LoadingSpinner />;
+  }
 
   return (
-    <div className="flex flex-col w-full h-full">
-      <div className="p-4 border-b border-base-200">
-        <h3 className="text-lg font-semibold text-neutral-content">
-          Chat with {capitalizeFirstLetter(selectedUser?.fullName)}
-        </h3>
-      </div>
-      <div className="flex-1 overflow-y-auto p-4 space-y-2">
-        {message.length ? (
-          message.map((msg, index) => (
+    <div className="flex flex-col h-full w-full bg-base-200">
+      {/* Chat Header */}
+      <ChatHeader />
+
+      {/* Messages List */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        {message.map((msg) => (
+          <div
+            key={msg._id}
+            className={`chat ${
+              msg.senderId === authUser._id ? "chat-end" : "chat-start"
+            }`}
+          >
+            <div className="chat-image avatar">
+              <div className="w-10 rounded-full">
+                <img
+                  src={
+                    msg.senderId === authUser._id
+                      ? authUser.profilePic?.url || "/avatar.png"
+                      : selectedUser.profilePic?.url || "/avatar.png"
+                  }
+                  alt="avatar"
+                />
+              </div>
+            </div>
+            <div className="chat-header">
+              {msg.senderId === selectedUser._id
+                ? selectedUser.fullName
+                : "You"}
+            </div>
+
             <div
-              key={index}
-              className={`max-w-xs p-2 rounded-lg ${
-                msg.fromSelf
-                  ? "bg-primary text-primary-content ml-auto"
-                  : "bg-base-300 text-base-content"
+              className={`chat-bubble ${
+                msg.senderId === selectedUser._id ? "" : "chat-bubble-primary"
               }`}
             >
-              {msg.message}
+              {msg.text}
+              {msg.image && (
+                <img
+                  src={msg.image}
+                  alt="sent-img"
+                  className="mt-2 max-w-xs rounded-lg shadow-md"
+                />
+              )}
             </div>
-          ))
-        ) : (
-          <p className="text-sm text-neutral-content opacity-70">
-            No messages yet.
-          </p>
-        )}
+
+            {/* Time Footer */}
+            <div className="chat-footer opacity-50 text-xs">
+              {msg.createdAt && (
+                <span>
+                  {format(new Date(msg.createdAt), "hh:mm a")}{" "}
+                  {/* Formats time */}
+                </span>
+              )}
+            </div>
+          </div>
+        ))}
+
+        {/* Scroll to the bottom */}
+        <div ref={messagesEndRef} />
       </div>
-      <div className="p-4 border-t border-base-200">
-        <input
-          type="text"
-          placeholder="Type your message..."
-          className="input input-bordered w-full"
-        />
-      </div>
+
+      {/* Message Input */}
+      <MessageInput />
     </div>
   );
 };

@@ -7,7 +7,7 @@ const NavBar = () => {
   const { authUser, logout } = useAuthStore();
 
   return (
-    <div className="navbar bg-base-100 shadow-md fixed top-0 left-0 w-full z-50 px-4 sm:px-6">
+    <div className="navbar bg-base-300 shadow-md fixed top-0 left-0 w-full z-50 px-4 sm:px-6">
       {/* Left - Logo */}
       <div className="flex-1">
         <Link
@@ -39,7 +39,7 @@ const NavBar = () => {
             </Link>
             <button
               onClick={logout}
-              className="btn btn-error btn-sm text-white gap-2 px-3"
+              className="btn btn-primary btn-sm text-white gap-2 px-3"
             >
               <LogOut className="w-4 h-4" />
               Logout
