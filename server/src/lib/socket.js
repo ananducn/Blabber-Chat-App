@@ -8,6 +8,8 @@ const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
     origin: ["https://blabber-chat-frondend.onrender.com"],
+    methods: ["GET", "POST"],
+    credentials: true,
   },
 });
 
