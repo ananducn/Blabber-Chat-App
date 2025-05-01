@@ -14,8 +14,6 @@ import useThemeStore from "./store/useThemeStore.js";
 function App() {
   const { authUser, checkAuth, isCheckingAuth, onlineUsers } = useAuthStore();
 
-  console.log("onlineUsers: ", onlineUsers);
-
   const { theme } = useThemeStore();
 
   useEffect(() => {

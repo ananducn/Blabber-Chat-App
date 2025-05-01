@@ -4,7 +4,7 @@ import ChatHeader from "./ChatHeader.jsx";
 import MessageInput from "./MessageInput.jsx";
 import LoadingSpinner from "./loadingSpinner/LoadingSpinner.jsx";
 import { useAuthStore } from "../store/useAuthStore";
-import { format } from "date-fns"; // Import date-fns for formatting timestamps
+import { format } from "date-fns";
 
 const ChatContainer = () => {
   const {
@@ -15,15 +15,14 @@ const ChatContainer = () => {
     subscribeToNewMessages,
     unSubscribeToNewMessages,
   } = useChatStore();
-  const { authUser } = useAuthStore();
 
-  const messagesEndRef = useRef(null); // Ref to scroll to the bottom
+  const { authUser } = useAuthStore();
+  const messagesEndRef = useRef(null);
 
   useEffect(() => {
     if (selectedUser?._id) {
       getMessages(selectedUser._id);
       subscribeToNewMessages();
-
       return () => {
         unSubscribeToNewMessages();
       };
@@ -36,13 +35,12 @@ const ChatContainer = () => {
   ]);
 
   useEffect(() => {
-    // Scroll to the bottom when new messages are loaded or added
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [message]); // Re-run when the messages change
+  }, [message]);
 
   if (!selectedUser) {
     return (
-      <div className="flex items-center justify-center w-full h-full text-center text-lg opacity-50">
+      <div className="flex items-center justify-center w-full h-full text-center text-sm sm:text-base opacity-50 px-4">
         Select a user to start chatting
       </div>
     );
@@ -54,11 +52,9 @@ const ChatContainer = () => {
 
   return (
     <div className="flex flex-col h-full w-full bg-base-200">
-      {/* Chat Header */}
       <ChatHeader />
 
-      {/* Messages List */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      <div className="flex-1 overflow-y-auto px-2 py-3 sm:p-4 space-y-3 sm:space-y-4">
         {message.map((msg) => (
           <div
             key={msg._id}
@@ -66,8 +62,9 @@ const ChatContainer = () => {
               msg.senderId === authUser._id ? "chat-end" : "chat-start"
             }`}
           >
+            {/* Avatar */}
             <div className="chat-image avatar">
-              <div className="w-10 rounded-full">
+              <div className="w-6 sm:w-8 rounded-full">
                 <img
                   src={
                     msg.senderId === authUser._id
@@ -78,14 +75,17 @@ const ChatContainer = () => {
                 />
               </div>
             </div>
-            <div className="chat-header">
+
+            {/* Header */}
+            <div className="chat-header text-[11px] sm:text-xs">
               {msg.senderId === selectedUser._id
                 ? selectedUser.fullName
                 : "You"}
             </div>
 
+            {/* Message Bubble */}
             <div
-              className={`chat-bubble ${
+              className={`chat-bubble text-xs sm:text-sm ${
                 msg.senderId === selectedUser._id ? "" : "chat-bubble-primary"
               }`}
             >
@@ -94,28 +94,23 @@ const ChatContainer = () => {
                 <img
                   src={msg.image}
                   alt="sent-img"
-                  className="mt-2 max-w-xs rounded-lg shadow-md"
+                  className="mt-2 max-w-[50vw] sm:max-w-[200px] rounded-md shadow-sm"
                 />
               )}
             </div>
 
-            {/* Time Footer */}
-            <div className="chat-footer opacity-50 text-xs">
+            {/* Time */}
+            <div className="chat-footer opacity-50 text-[10px] sm:text-xs mt-1">
               {msg.createdAt && (
-                <span>
-                  {format(new Date(msg.createdAt), "hh:mm a")}{" "}
-                  {/* Formats time */}
-                </span>
+                <span>{format(new Date(msg.createdAt), "hh:mm a")}</span>
               )}
             </div>
           </div>
         ))}
 
-        {/* Scroll to the bottom */}
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Message Input */}
       <MessageInput />
     </div>
   );
