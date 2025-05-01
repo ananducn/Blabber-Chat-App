@@ -18,7 +18,7 @@ app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 app.use(cookieParser()); // this allows us to access cookies
 app.use(
   cors({
-    origin: "https://blabber-chat-backend.onrender.com",
+    origin: "https://blabber-chat-frondend.onrender.com",
     credentials: true,
   })
 );
